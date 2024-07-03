@@ -2,26 +2,62 @@
 //
 
 #include <iostream>
-#include "aee_lib_helper.h"
+#include <windows.h>
+
+#include "../../../aee_lib_helper/aee_lib_helper.h"
 
 // C++测试程序，调用aee_lib_helper.dll来跑通讯飞的SDK
+
+std::wstring GetInstallExePath() {
+	wchar_t file_name[MAX_PATH] = { 0 };
+	DWORD size = GetModuleFileName(NULL, file_name, MAX_PATH);
+	if (size == 0) {
+		return L"";
+	}
+
+    std::wstring host_folder(file_name);
+	auto pos = host_folder.find_last_of(L"\\");
+	if (pos != std::wstring::npos) {
+		host_folder = host_folder.substr(0, pos + 1);
+	}
+
+	return host_folder;
+}
+
+// 输出回调
+void OnOutput(const char* ability_id, const char* key, const char* value) {
+
+}
+
+// 事件回调
+void OnEvent(int event_type, const char* key, const char* value) {
+
+}
+
+// 错误回调
+void OnError(int err, const char* desc) {
+
+}
 
 static const char* ABILITY = "e867a88f2";
 
 int main()
 {
-    std::string app_id = "fcde2f9b";
+    SetCurrentDirectoryW(GetInstallExePath().c_str());
+
+	std::string app_id = "fcde2f9b";
     std::string api_secret = "YTY1ZDM1OWU1OWM1YjYxNmRiNmZjYmMy";
     std::string api_key = "3813c0bf114b0221b61db7b012f40dba";
     
     // 初始化SDK
-    AEE_lib_Init(app_id.c_str(), api_secret.c_str(), api_key.c_str());
+    AEE_lib_Init(app_id.c_str(), api_secret.c_str(), api_key.c_str(), OnOutput, OnEvent, OnError);
     
     int code = 0;
     do
     {
         // 初始化语音唤醒引擎
-        code = AEE_lib_AIKIT_EngineInit(ABILITY);
+        //code = AEE_lib_AIKIT_EngineInit(ABILITY, "C:\\Users\\Tim\\Work\\my-projects\\xunfeidemo\\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\\samples\\x64\\Debug\\resource\\ivw70\\kerword.txt");
+        code = AEE_lib_AIKIT_EngineInit(ABILITY, ".\\resource\\ivw70\\keyword.txt");
         if (code != 0) {
             printf("AEE_lib_AIKIT_EngineInit fail \r\n");
             break;

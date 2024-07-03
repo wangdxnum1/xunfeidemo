@@ -1,7 +1,0 @@
-C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\x64\Debug\mysample2.exe.config
-C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\x64\Debug\mysample2.exe
-C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\x64\Debug\mysample2.pdb
-C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\mysample2\obj\Debug\mysample2.csproj.AssemblyReference.cache
-C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\mysample2\obj\Debug\mysample2.csproj.CoreCompileInputs.cache
-C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\mysample2\obj\Debug\mysample2.exe
-C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\mysample2\obj\Debug\mysample2.pdb
