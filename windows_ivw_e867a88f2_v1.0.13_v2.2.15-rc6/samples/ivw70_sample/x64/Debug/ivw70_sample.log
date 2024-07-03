@@ -1,0 +1,11 @@
+﻿  ivw70_sample.cpp
+C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\ivw70_sample\ivw70_sample.cpp(93,66): warning C4267: 'argument': conversion from 'size_t' to 'uint32_t', possible loss of data
+C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\ivw70_sample\ivw70_sample.cpp(116,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\ivw70_sample\ivw70_sample.cpp(121,19): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\ivw70_sample\ivw70_sample.cpp(180,66): warning C4267: 'argument': conversion from 'size_t' to 'uint32_t', possible loss of data
+C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\ivw70_sample\ivw70_sample.cpp(201,18): warning C4267: '=': conversion from 'size_t' to 'long', possible loss of data
+C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\ivw70_sample\ivw70_sample.cpp(189,9): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\ivw70_sample\ivw70_sample.cpp(255,26): warning C4267: '=': conversion from 'size_t' to 'int32_t', possible loss of data
+C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\ivw70_sample\ivw70_sample.cpp(273,2): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  ivw70_sample.vcxproj -> C:\Users\Tim\Work\my-projects\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\windows_ivw_e867a88f2_v1.0.13_v2.2.15-rc6\samples\x64\Debug\ivw70_sample.exe
+  已复制         1 个文件。
