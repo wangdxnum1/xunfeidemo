@@ -1,0 +1,9 @@
+﻿  cnenesr_sample.cpp
+C:\Users\Tim\Work\my-projects\windows_cnenesr_e75f07b62_v1.0.10_v2.2.15-rc6\samples\cnenesr_sample\cnenesr_sample.cpp(1,1): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+C:\Users\Tim\Work\my-projects\windows_cnenesr_e75f07b62_v1.0.10_v2.2.15-rc6\samples\cnenesr_sample\cnenesr_sample.cpp(231,17): warning C4267: '=': conversion from 'size_t' to 'long', possible loss of data
+C:\Users\Tim\Work\my-projects\windows_cnenesr_e75f07b62_v1.0.10_v2.2.15-rc6\samples\cnenesr_sample\cnenesr_sample.cpp(303,56): warning C4267: 'argument': conversion from 'size_t' to 'uint32_t', possible loss of data
+  speech_recognizer.cpp
+  Generating Code...
+  winrec.c
+  cnenesr_sample.vcxproj -> C:\Users\Tim\Work\my-projects\windows_cnenesr_e75f07b62_v1.0.10_v2.2.15-rc6\samples\x64\Debug\cnenesr_sample.exe
+  已复制         1 个文件。
