@@ -123,6 +123,7 @@ AEE_LIB_HELPER_API int AEE_lib_AIKIT_EngineInit(const char* ability, const char*
 	if (ret != 0) {
 		printf("AIKIT_EngineInit failed:%d\n", ret);
 		return ret;
+
 	}
 
 	//…Ë÷√ªΩ–—¥ 
