@@ -24,6 +24,9 @@
     <ClInclude Include="aee_lib_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="global_define.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="aee_lib_helper.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="global_define.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>

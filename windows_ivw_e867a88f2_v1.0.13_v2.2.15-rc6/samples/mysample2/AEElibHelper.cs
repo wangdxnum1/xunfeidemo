@@ -33,7 +33,7 @@ namespace mysample2
         /// <param name="apiKey"></param>
         /// <returns></returns>
         [DllImport("aee_lib_helper.dll", EntryPoint = "AEE_lib_Init", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int AEE_lib_Init(string appId, string apiSecret, string apiKey, AEE_lib_AIKIT_OnOutput OnOutput, AEE_lib_AIKIT_OnEvent OnEvent, AEE_lib_AIKIT_OnError OnError);
+        public static extern int AEE_lib_Init(int ability, string appId, string apiSecret, string apiKey, AEE_lib_AIKIT_OnOutput OnOutput, AEE_lib_AIKIT_OnEvent OnEvent, AEE_lib_AIKIT_OnError OnError);
 
         /// <summary>
         /// 反初始化SDK
@@ -42,21 +42,33 @@ namespace mysample2
         [DllImport("aee_lib_helper.dll", EntryPoint = "AEE_lib_UnInit", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern int AEE_lib_UnInit();
 
-        /// <summary>
-        /// 启动引擎
-        /// </summary>
-        /// <param name="ability"></param>
-        /// <returns></returns>
-        [DllImport("aee_lib_helper.dll", EntryPoint = "AEE_lib_AIKIT_EngineInit", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int AEE_lib_AIKIT_EngineInit(string ability, string keywordFilePath);
+        /********************************************************************************************************************************/
+        /****************************************************语音唤醒相关接口*************************************************************/
+        /********************************************************************************************************************************/
 
         /// <summary>
-        /// 关闭/反初始化引擎
+        /// 语音唤醒能力引擎
         /// </summary>
         /// <param name="ability"></param>
         /// <returns></returns>
-        [DllImport("aee_lib_helper.dll", EntryPoint = "AEE_lib_AIKIT_EngineUnInit", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int AEE_lib_AIKIT_EngineUnInit(string ability);
+        [DllImport("aee_lib_helper.dll", EntryPoint = "AEE_lib_AIKIT_Awaken_EngineInit", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int AEE_lib_AIKIT_Awaken_EngineInit();
+
+        /// <summary>
+        /// 语音唤醒能力关闭/反初始化引擎
+        /// </summary>
+        /// <param name="ability"></param>
+        /// <returns></returns>
+        [DllImport("aee_lib_helper.dll", EntryPoint = "AEE_lib_AIKIT_Awaken_EngineUnInit", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int AEE_lib_AIKIT_Awaken_EngineUnInit();
+
+        /// <summary>
+        /// 设置语音唤醒的keyword文件路径
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        [DllImport("aee_lib_helper.dll", EntryPoint = "AEE_lib_AIKIT_SetKeywordData", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int AEE_lib_SetKeywordData(string filePath);
 
         /// <summary>
         /// 从语音文件唤醒

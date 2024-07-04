@@ -11,11 +11,15 @@
 
 #include <Windows.h>
 #include <mmsystem.h>
+#include <string>
+#include <vector>
 
 #include "../include/aikit_biz_api.h"
 #include "../include/aikit_constant.h"
 #include "../include/aikit_biz_config.h"
 #include "../include/aikit_biz_builder.h"
+
+#include "global_define.h"
 
 #pragma comment(lib, "winmm.lib")  
 
@@ -24,8 +28,19 @@
 using namespace std;
 using namespace AIKIT;
 
-static const char* ABILITY = "e867a88f2";
+//
+// 能力id
+//
 
+// 语音唤醒
+static const char* kABILITY_AWAKEN_BY_VOICE = "e867a88f2";
+
+// 离线命令词识别
+static const char* kABILITY_COMMAND_WORD_RECOGNITION = "e75f07b62";
+
+//
+// call back
+//
 static AEE_lib_AIKIT_OnOutput OnOutputDelegate = nullptr;
 static AEE_lib_AIKIT_OnEvent OnEventDelegate = nullptr;
 static AEE_lib_AIKIT_OnError OnErrorDelegate = nullptr;
@@ -36,9 +51,9 @@ static AEE_lib_AIKIT_OnError OnErrorDelegate = nullptr;
 void OnOutput(AIKIT_HANDLE* handle, const AIKIT_OutputData* output) {
 
 	//system("chcp 65001");
-	printf("OnOutput abilityID :%s\n", handle->abilityID);
-	printf("OnOutput key:%s\n", output->node->key);
-	printf("OnOutput value:%s\n", (char*)output->node->value);
+	LOG_INFO("OnOutput abilityID :%s\n", handle->abilityID);
+	LOG_INFO("OnOutput key:%s\n", output->node->key);
+	LOG_INFO("OnOutput value:%s\n", (char*)output->node->value);
 
 	if (OnOutputDelegate) {
 		OnOutputDelegate(handle->abilityID, output->node->key, (char*)output->node->value);
@@ -46,7 +61,7 @@ void OnOutput(AIKIT_HANDLE* handle, const AIKIT_OutputData* output) {
 }
 
 void OnEvent(AIKIT_HANDLE* handle, AIKIT_EVENT eventType, const AIKIT_OutputEvent* eventValue) {
-	printf("OnEvent:%d\n", eventType);
+	LOG_INFO("OnEvent:%d\n", eventType);
 
 	if (OnEventDelegate) {
 		OnEventDelegate((int)eventType, eventValue->node->key, (char*)eventValue->node->value);
@@ -54,15 +69,22 @@ void OnEvent(AIKIT_HANDLE* handle, AIKIT_EVENT eventType, const AIKIT_OutputEven
 }
 
 void OnError(AIKIT_HANDLE* handle, int32_t err, const char* desc) {
-	printf("OnError:%d\n", err);
+	LOG_INFO("OnError:%d\n", err);
 
 	if (OnErrorDelegate) {
 		OnErrorDelegate(err, desc);
 	}
 }
 
+//
+// internel or static private method
+//
+std::string ToAbilityString(int ability);
+std::string Ability2AbilityString(int ability);
+
 // This is an example of an exported function.
 AEE_LIB_HELPER_API int AEE_lib_Init(
+	int ability,
 	const char* app_id,
 	const char* api_secret,
 	const char* api_key,
@@ -70,7 +92,9 @@ AEE_LIB_HELPER_API int AEE_lib_Init(
 	AEE_lib_AIKIT_OnEvent on_event,
 	AEE_lib_AIKIT_OnError on_error)
 {
-	printf("app_id : %s, api_secret : %s, api_key : %s \r\n", app_id, api_secret, api_key);
+	LOG_INFO("ability : %d, app_id : %s, api_secret : %s, api_key : %s \r\n", ability, app_id, api_secret, api_key);
+
+	std::string real_ability = ToAbilityString(ability);
 
 	AIKIT_Configurator::builder()
 		.app()
@@ -80,20 +104,20 @@ AEE_LIB_HELPER_API int AEE_lib_Init(
 		.workDir(".\\")
 		.auth()
 		.authType(0)
-		.ability(ABILITY)
+		.ability(real_ability.c_str())
 		.log()
 		.logMode(2)
 		.logPath(".\\aikit.log");
 	int ret = AIKIT_Init();
 	if (ret != 0) {
-		printf("AIKIT_Init failed:%d\n", ret);
+		LOG_INFO("AIKIT_Init failed:%d\n", ret);
 		return ret;
 	}
 
 	AIKIT_Callbacks cbs = { OnOutput,OnEvent,OnError };
-	ret = AIKIT_RegisterAbilityCallback(ABILITY, cbs);
+	ret = AIKIT_RegisterAbilityCallback(real_ability.c_str(), cbs);
 	if (ret != 0) {
-		printf("AIKIT_RegisterAbilityCallback failed:%d\n", ret);
+		LOG_INFO("AIKIT_RegisterAbilityCallback failed:%d\n", ret);
 		return ret;
 	}
 
@@ -113,44 +137,70 @@ AEE_LIB_HELPER_API int AEE_lib_UnInit() {
 	return AIKIT_UnInit();
 }
 
-AEE_LIB_HELPER_API int AEE_lib_AIKIT_EngineInit(const char* ability, const char* key_word_file_path) {
-	AIKIT_OutputData* output = nullptr;
+int AEE_lib_AIKIT_EngineInit(const char* ability) {
 	int ret = 0;
-	int aud_src = 0;
-	int index[] = { 0 };
+	AIKIT_BizParam* param = nullptr;
 
-	ret = AIKIT_EngineInit(ABILITY, nullptr);
-	if (ret != 0) {
-		printf("AIKIT_EngineInit failed:%d\n", ret);
-		return ret;
+	// 语音唤醒
+	if (strcmp(ability, kABILITY_AWAKEN_BY_VOICE) == 0) {
+		// do nothing
+	}
+	else if (strcmp(ability, kABILITY_COMMAND_WORD_RECOGNITION) == 0) {
+		// 命令词识别
+		AIKIT_ParamBuilder* engine_paramBuilder = nullptr;
 
+		engine_paramBuilder = AIKIT_ParamBuilder::create();
+		engine_paramBuilder->clear();
+		engine_paramBuilder->param("decNetType", "fsa", (uint32_t)strlen("fsa"));
+		engine_paramBuilder->param("punishCoefficient", 0.0);
+		engine_paramBuilder->param("wfst_addType", 0);		//0-中文，1-英文
+
+		param = AIKIT_Builder::build(engine_paramBuilder);
 	}
 
-	//设置唤醒词
-	AIKIT_CustomData customData;
-	customData.key = "key_word";
-	customData.index = 0;
-	customData.from = AIKIT_DATA_PTR_PATH;
-	// .\\resource\\ivw70\\xbxb.txt
-	customData.value = (void*)key_word_file_path;
-	customData.len = (int32_t)strlen(key_word_file_path);
-	customData.next = nullptr;
-	customData.reserved = nullptr;
-	printf("AIKIT_LoadData start!\n");
-	ret = AIKIT_LoadData(ABILITY, &customData);
-	printf("AIKIT_LoadData end!\n");
-	printf("AIKIT_LoadData:%d\n", ret);
-
-	// 如果加载失败，能力引擎需要反初始化下
+	ret = AIKIT_EngineInit(ability, param);
 	if (ret != 0) {
-		AIKIT_EngineUnInit(ability);
+		LOG_INFO("AIKIT_EngineInit failed:%d\n", ret);
+		return ret;
 	}
 
 	return ret;
 }
 
-AEE_LIB_HELPER_API int AEE_lib_AIKIT_EngineUnInit(const char* ability) {
+int AEE_lib_AIKIT_EngineUnInit(const char* ability) {
 	return AIKIT_EngineUnInit(ability);
+}
+
+/********************************************************************************************************************************/
+/****************************************************语音唤醒相关接口*************************************************************/
+/********************************************************************************************************************************/
+AEE_LIB_HELPER_API int AEE_lib_AIKIT_Awaken_EngineInit() {
+	return AEE_lib_AIKIT_EngineInit(kABILITY_AWAKEN_BY_VOICE);
+}
+
+AEE_LIB_HELPER_API int AEE_lib_AIKIT_Awaken_EngineUnInit() {
+	return AEE_lib_AIKIT_EngineUnInit(kABILITY_AWAKEN_BY_VOICE);
+}
+
+AEE_LIB_HELPER_API int AEE_lib_AIKIT_SetKeywordData(const char* filepath) {
+	int ret = 0;
+
+	//设置唤醒词
+	AIKIT_CustomData customData = { 0 };
+	customData.key = "key_word";
+	customData.index = 0;
+	customData.from = AIKIT_DATA_PTR_PATH;
+	// .\\resource\\ivw70\\xbxb.txt
+	customData.value = (void*)filepath;
+	customData.len = (int32_t)strlen(filepath);
+	customData.next = nullptr;
+	customData.reserved = nullptr;
+	LOG_INFO("AIKIT_LoadData start!\n");
+	ret = AIKIT_LoadData(kABILITY_AWAKEN_BY_VOICE, &customData);
+	LOG_INFO("AIKIT_LoadData end!\n");
+	LOG_INFO("AIKIT_LoadData:%d\n", ret);
+
+	return ret;
 }
 
 AEE_LIB_HELPER_API int AEE_lib_WakeFromFile(const char* file_path) {
@@ -166,10 +216,10 @@ AEE_LIB_HELPER_API int AEE_lib_WakeFromFile(const char* file_path) {
 	int index[] = { 0 };
 
 	// 指定要使用的唤醒词文件数据集合，每次会话开启前需要调用。
-	ret = AIKIT_SpecifyDataSet(ABILITY, "key_word", index, 1);
-	printf("AIKIT_SpecifyDataSet:%d\n", ret);
+	ret = AIKIT_SpecifyDataSet(kABILITY_AWAKEN_BY_VOICE, "key_word", index, 1);
+	LOG_INFO("AIKIT_SpecifyDataSet:%d\n", ret);
 	if (ret != 0) {
-		printf("AIKIT_SpecifyDataSet failed \n");
+		LOG_INFO("AIKIT_SpecifyDataSet failed \n");
 		goto  exit;
 	}
 
@@ -178,16 +228,16 @@ AEE_LIB_HELPER_API int AEE_lib_WakeFromFile(const char* file_path) {
 	paramBuilder->param("wdec_param_nCmThreshold", "0 0:999", (uint32_t)strlen("0 0:999"));
 	paramBuilder->param("gramLoad", true);
 
-	ret = AIKIT_Start(ABILITY, AIKIT_Builder::build(paramBuilder), nullptr, &handle);
-	printf("AIKIT_Start:%d\n", ret);
+	ret = AIKIT_Start(kABILITY_AWAKEN_BY_VOICE, AIKIT_Builder::build(paramBuilder), nullptr, &handle);
+	LOG_INFO("AIKIT_Start:%d\n", ret);
 	if (ret != 0) {
-		printf("AIKIT_Start failed\n");
+		LOG_INFO("AIKIT_Start failed\n");
 		goto  exit;
 	}
 
 	file = fopen(file_path, "rb");
 	if (file == nullptr) {
-		printf("fopen failed\n");
+		LOG_INFO("fopen failed\n");
 		goto exit;
 	}
 
@@ -205,7 +255,7 @@ AEE_LIB_HELPER_API int AEE_lib_WakeFromFile(const char* file_path) {
 		dataBuilder->payload(aiAudio_raw);
 		ret = AIKIT_Write(handle, AIKIT_Builder::build(dataBuilder));
 		if (ret != 0) {
-			printf("AIKIT_Write:%d failed\n", ret);
+			LOG_INFO("AIKIT_Write:%d failed\n", ret);
 			goto  exit;
 		}
 		fileSize -= readLen;
@@ -269,16 +319,16 @@ AEE_LIB_HELPER_API int AEE_lib_WakeFromMicrophone() {
 	bufsize = 1024 * 500;//开辟适当大小的内存存储音频数据，可适当调整内存大小以增加录音时间，或采取其他的内存管理方案
 
 	paramBuilder = AIKIT_ParamBuilder::create();
-	ret = AIKIT_SpecifyDataSet(ABILITY, "key_word", index, 1);
-	printf("AIKIT_SpecifyDataSet:%d\n", ret);
+	ret = AIKIT_SpecifyDataSet(kABILITY_AWAKEN_BY_VOICE, "key_word", index, 1);
+	LOG_INFO("AIKIT_SpecifyDataSet:%d\n", ret);
 	if (ret != 0) {
 		goto exit;
 	}
 	paramBuilder->param("wdec_param_nCmThreshold", "0 0:999", (uint32_t)strlen("0 0:999"));
 	paramBuilder->param("gramLoad", true);
 
-	ret = AIKIT_Start(ABILITY, AIKIT_Builder::build(paramBuilder), nullptr, &handle);
-	printf("AIKIT_Start:%d\n", ret);
+	ret = AIKIT_Start(kABILITY_AWAKEN_BY_VOICE, AIKIT_Builder::build(paramBuilder), nullptr, &handle);
+	LOG_INFO("AIKIT_Start:%d\n", ret);
 	if (ret != 0) {
 		return ret;
 	}
@@ -307,13 +357,13 @@ AEE_LIB_HELPER_API int AEE_lib_WakeFromMicrophone() {
 			len = 0;
 		}
 
-		printf(">>>>>>>>count=%d\n", count++);
+		LOG_INFO(">>>>>>>>count=%d\n", count++);
 		dataBuilder->clear();
 		aiAudio_raw = AiAudio::get("wav")->data((const char*)&pBuffer[audio_count], len)->valid();
 		dataBuilder->payload(aiAudio_raw);
 		ret = AIKIT_Write(handle, AIKIT_Builder::build(dataBuilder));
 		if (ret != 0) {
-			printf("AIKIT_Write:%d\n", ret);
+			LOG_INFO("AIKIT_Write:%d\n", ret);
 			goto  exit;
 		}
 		audio_count += len;
@@ -340,4 +390,62 @@ exit:
 	}
 
 	return ret;
+}
+
+/********************************************************************************************************************************/
+/****************************************************命令词识别相关接口***********************************************************/
+/********************************************************************************************************************************/
+
+AEE_LIB_HELPER_API int AEE_lib_AIKIT_Command_Word_EngineInit() {
+	return AEE_lib_AIKIT_EngineInit(kABILITY_COMMAND_WORD_RECOGNITION);
+}
+
+AEE_LIB_HELPER_API int AEE_lib_AIKIT_Awaken_Command_Word_EngineUnInit() {
+	return AEE_lib_AIKIT_EngineUnInit(kABILITY_COMMAND_WORD_RECOGNITION);
+}
+
+/********************************************************************************************************************************/
+/********************************************internel or static private method***************************************************/
+/********************************************************************************************************************************/
+
+std::string ToAbilityString(int ability) {
+	std::vector<int> all_abilitis;
+
+	if (FlagOn(ability, AEE_LIB_AWAKEN_BY_VOICE)) {
+		all_abilitis.push_back(AEE_LIB_AWAKEN_BY_VOICE);
+	}
+
+	if (FlagOn(ability, AEE_LIB_COMMAND_WORD_RECOGNITION)) {
+		all_abilitis.push_back(AEE_LIB_COMMAND_WORD_RECOGNITION);
+	}
+
+	if (all_abilitis.empty()) return "";
+
+	std::string real_ability;
+	int index = 0;
+	for (auto ab : all_abilitis) {
+		if (index != 0) real_ability.append(";");
+
+		real_ability.append(Ability2AbilityString(ab));
+		++index;
+	}
+
+	return real_ability;
+}
+
+std::string Ability2AbilityString(int ability) {
+	std::string real_ability;
+	switch (ability)
+	{
+	case AEE_LIB_AWAKEN_BY_VOICE:
+		real_ability = kABILITY_AWAKEN_BY_VOICE;
+		break;
+	case AEE_LIB_COMMAND_WORD_RECOGNITION:
+		real_ability = kABILITY_COMMAND_WORD_RECOGNITION;
+		break;
+	default:
+		break;
+	}
+
+	return real_ability;
 }

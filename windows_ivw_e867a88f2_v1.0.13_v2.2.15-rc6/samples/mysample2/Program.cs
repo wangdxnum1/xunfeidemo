@@ -20,15 +20,17 @@ namespace mysample2
             string apiKey = "3813c0bf114b0221b61db7b012f40dba";
 
             // 模块能力-语音唤醒标识码
-            string ability = "e867a88f2";
+            int ability = 1;
 
             // 进程启动的时候，初始化下
-            AEElibHelper.AEE_lib_Init(appId, apiSecret, apiKey, OnOutput, OnEvent, OnError);
+            AEElibHelper.AEE_lib_Init(ability, appId, apiSecret, apiKey, OnOutput, OnEvent, OnError);
 
             // 开启语音唤醒引擎
+            AEElibHelper.AEE_lib_AIKIT_Awaken_EngineInit();
+
             // 关键词所在路径
             string keywordFilePath = ".\\resource\\ivw70\\keyword.txt";
-            AEElibHelper.AEE_lib_AIKIT_EngineInit(ability, keywordFilePath);
+            AEElibHelper.AEE_lib_SetKeywordData(keywordFilePath);
 
             // 开始唤醒
             Console.WriteLine("===========================");
@@ -47,7 +49,7 @@ namespace mysample2
             }
 
             // 关闭语音唤醒引擎
-            AEElibHelper.AEE_lib_AIKIT_EngineUnInit(ability);
+            AEElibHelper.AEE_lib_AIKIT_Awaken_EngineUnInit();
 
 
             // 程序退出的时候，反初始化一下

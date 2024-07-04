@@ -4,14 +4,18 @@
 #define AEE_LIB_HELPER_API __declspec(dllimport)
 #endif
 
-//typedef void (*AIKIT_OnOutput)(AIKIT_HANDLE* handle, const AIKIT_OutputData* output);
-//typedef void (*AIKIT_OnEvent)(AIKIT_HANDLE* handle, AIKIT_EVENT eventType, const AIKIT_OutputEvent* eventValue);
-//typedef void (*AIKIT_OnError)(AIKIT_HANDLE* handle, int32_t err, const char* desc);
-//typedef struct {
-//	AIKIT_OnOutput outputCB;  //輸出回调
-//	AIKIT_OnEvent  eventCB;   //事件回调
-//	AIKIT_OnError  errorCB;   //错误回调
-//} AIKIT_Callbacks;
+//
+// SDK 相关能力定义
+//
+
+// 语音唤醒
+#define AEE_LIB_AWAKEN_BY_VOICE					0x00000001
+
+// 命令词识别
+#define AEE_LIB_COMMAND_WORD_RECOGNITION		0x00000002
+
+// 所有能力， 语音唤醒 + 命令词识别
+#define AEE_LIB_ALL_ABILITY						(AEE_LIB_AWAKEN_BY_VOICE | AEE_LIB_COMMAND_WORD_RECOGNITION)
 
 //
 // SDK 3个回调函数定义 Callback Function Definition
@@ -22,6 +26,8 @@ typedef void (*AEE_lib_AIKIT_OnOutput)(const char* ability_id, const char* key, 
 typedef void (*AEE_lib_AIKIT_OnEvent)(int event_type, const char* key, const char* value);
 // 错误回调
 typedef void (*AEE_lib_AIKIT_OnError)(int err, const char* desc);
+
+/****************************************************SDK通用接口*************************************************************/
 
 /// <summary>
 /// 初始化SDK lib，程序启动的时候初始化一次即可
@@ -34,6 +40,7 @@ typedef void (*AEE_lib_AIKIT_OnError)(int err, const char* desc);
 /// <param name="on_error"></param>
 /// <returns>错误码 0=成功，其他表示失败</returns>
 extern "C" AEE_LIB_HELPER_API int AEE_lib_Init(
+	int ability,
 	const char* app_id, 
 	const char* api_secret, 
 	const char* api_key, 
@@ -47,20 +54,40 @@ extern "C" AEE_LIB_HELPER_API int AEE_lib_Init(
 /// <returns>错误码 0=成功，其他表示失败</returns>
 extern "C" AEE_LIB_HELPER_API int AEE_lib_UnInit();
 
+///// <summary>
+///// 初始化指定能力引擎
+///// </summary>
+///// <param name="ability"></param>
+///// <returns>错误码 0=成功，其他表示失败</returns>
+//extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_EngineInit(const char* ability);
+//
+///// <summary>
+///// 能力引擎逆初始化,释放能力及对应引擎占用所有资源
+///// </summary>
+///// <param name="ability"></param>
+///// <returns>错误码 0=成功，其他表示失败</returns>
+//extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_EngineUnInit(const char* ability);
+
+/****************************************************语音唤醒相关接口*************************************************************/
 /// <summary>
 /// 初始化语音唤醒能力引擎
 /// </summary>
-/// <param name="ability"></param>
-/// /// <param name="key_word_file_path">关键词路径</param>
 /// <returns>错误码 0=成功，其他表示失败</returns>
-extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_EngineInit(const char* ability, const char* key_word_file_path);
+extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_Awaken_EngineInit();
 
 /// <summary>
-/// 能力引擎逆初始化,释放能力及对应引擎占用所有资源
+/// 语音唤醒能力引擎逆初始化,释放能力及对应引擎占用所有资源
 /// </summary>
 /// <param name="ability"></param>
 /// <returns>错误码 0=成功，其他表示失败</returns>
-extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_EngineUnInit(const char* ability);
+extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_Awaken_EngineUnInit();
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="filepath"></param>
+/// <returns></returns>
+extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_SetKeywordData(const char* filepath);
 
 /// <summary>
 /// 设置一个语音文件路径，从文件唤醒
@@ -74,3 +101,18 @@ extern "C" AEE_LIB_HELPER_API int AEE_lib_WakeFromFile(const char* file_path);
 /// </summary>
 /// <returns>错误码 0=成功，其他表示失败</returns>
 extern "C" AEE_LIB_HELPER_API int AEE_lib_WakeFromMicrophone();
+
+
+/****************************************************命令词识别相关接口*************************************************************/
+/// <summary>
+/// 命令词识别能力引擎初始化
+/// </summary>
+/// <returns>错误码 0=成功，其他表示失败</returns>
+extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_Command_Word_EngineInit();
+
+/// <summary>
+/// 命令词识别你呢里引擎逆初始化,释放能力及对应引擎占用所有资源
+/// </summary>
+/// <param name="ability"></param>
+/// <returns>错误码 0=成功，其他表示失败</returns>
+extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_Awaken_Command_Word_EngineUnInit();
