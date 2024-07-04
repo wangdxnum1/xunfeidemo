@@ -19,6 +19,8 @@
 #include "../include/aikit_biz_config.h"
 #include "../include/aikit_biz_builder.h"
 
+#include "speech_recognizer.h"
+
 #include "global_define.h"
 
 #pragma comment(lib, "winmm.lib")  
@@ -75,6 +77,10 @@ void OnError(AIKIT_HANDLE* handle, int32_t err, const char* desc) {
 		OnErrorDelegate(err, desc);
 	}
 }
+//
+// sdk method
+//
+int esr_file(AIKIT_ParamBuilder* paramBuilder, const char* audio_path, int fsa_count, long* readLen);
 
 //
 // internel or static private method
@@ -128,8 +134,6 @@ AEE_LIB_HELPER_API int AEE_lib_Init(
 	OnEventDelegate = on_event;
 	OnErrorDelegate = on_error;
 
-	system("chcp 65001");
-
 	return 0;
 }
 
@@ -140,6 +144,7 @@ AEE_LIB_HELPER_API int AEE_lib_UnInit() {
 int AEE_lib_AIKIT_EngineInit(const char* ability) {
 	int ret = 0;
 	AIKIT_BizParam* param = nullptr;
+	AIKIT_ParamBuilder* engine_paramBuilder = nullptr;
 
 	// 语音唤醒
 	if (strcmp(ability, kABILITY_AWAKEN_BY_VOICE) == 0) {
@@ -147,8 +152,6 @@ int AEE_lib_AIKIT_EngineInit(const char* ability) {
 	}
 	else if (strcmp(ability, kABILITY_COMMAND_WORD_RECOGNITION) == 0) {
 		// 命令词识别
-		AIKIT_ParamBuilder* engine_paramBuilder = nullptr;
-
 		engine_paramBuilder = AIKIT_ParamBuilder::create();
 		engine_paramBuilder->clear();
 		engine_paramBuilder->param("decNetType", "fsa", (uint32_t)strlen("fsa"));
@@ -161,7 +164,12 @@ int AEE_lib_AIKIT_EngineInit(const char* ability) {
 	ret = AIKIT_EngineInit(ability, param);
 	if (ret != 0) {
 		LOG_INFO("AIKIT_EngineInit failed:%d\n", ret);
-		return ret;
+		goto exit;
+	}
+exit:
+	if (engine_paramBuilder != nullptr) {
+		delete engine_paramBuilder;
+		engine_paramBuilder = nullptr;
 	}
 
 	return ret;
@@ -401,12 +409,177 @@ AEE_LIB_HELPER_API int AEE_lib_AIKIT_Command_Word_EngineInit() {
 }
 
 AEE_LIB_HELPER_API int AEE_lib_AIKIT_Awaken_Command_Word_EngineUnInit() {
+	AIKIT_UnLoadData(kABILITY_COMMAND_WORD_RECOGNITION, "FSA", 0);
+
 	return AEE_lib_AIKIT_EngineUnInit(kABILITY_COMMAND_WORD_RECOGNITION);
+}
+
+AEE_LIB_HELPER_API int AEE_lib_AIKIT_SetCommandWordData(const char* filepath) {
+	AIKIT_CustomBuilder* customBuilder = nullptr;
+
+	customBuilder = AIKIT_CustomBuilder::create();
+	customBuilder->clear();
+	//// 插词
+	//customBuilder->textPath("FSA", ".\\resource\\cnenesr\\fsa\\en_fsa.txt", 0);
+	customBuilder->textPath("FSA", filepath, 0);
+	int ret = AIKIT_LoadData(kABILITY_COMMAND_WORD_RECOGNITION, AIKIT_Builder::build(customBuilder));
+
+	if (ret != 0) {
+		LOG_INFO("AIKIT_LoadData failed:%d\n", ret);
+		goto exit;
+	}
+
+exit:
+	if (customBuilder != nullptr) {
+		delete customBuilder;
+		customBuilder = nullptr;
+	}
+
+	return ret;
+}
+
+AEE_LIB_HELPER_API int AEE_lib_CommandFromFile(const char* file_path) {
+	AIKIT_ParamBuilder* paramBuilder = nullptr;
+	long readLen = 0;
+	int ret = 0;
+
+	paramBuilder = AIKIT_ParamBuilder::create();
+	paramBuilder->clear();
+	paramBuilder->param("languageType", 0);		//0-中文 1-英文
+	paramBuilder->param("vadEndGap", 60);
+	paramBuilder->param("vadOn", true);
+	paramBuilder->param("beamThreshold", 20);
+	paramBuilder->param("hisGramThreshold", 3000);
+	paramBuilder->param("postprocOn", false);
+	paramBuilder->param("vadResponsetime", 1000);
+	paramBuilder->param("vadLinkOn", true);
+	paramBuilder->param("vadSpeechEnd", 80);
+
+	while (readLen >= 0)
+	{
+		// ".\\testAudio\\cn_test.pcm"
+		ret = esr_file(paramBuilder, file_path, 1, &readLen);
+		if (ret != 0 && ret != ESR_HAS_RESULT)
+			goto exit;
+	}
+
+exit:
+	if (paramBuilder != nullptr) {
+		delete paramBuilder;
+		paramBuilder = nullptr;
+	}
+
+	return ret;
 }
 
 /********************************************************************************************************************************/
 /********************************************internel or static private method***************************************************/
 /********************************************************************************************************************************/
+int esr_file(AIKIT_ParamBuilder* paramBuilder, const char* audio_path, int fsa_count, long* readLen)
+{
+	int ret = 0;
+	FILE* file = nullptr;
+	long fileSize = 0;
+	long curLen = 0;
+	char data[320] = { 0 };
+	int* index = (int*)malloc(fsa_count * sizeof(int));
+
+	AIKIT_DataStatus status = AIKIT_DataBegin;
+	AIKIT_DataBuilder* dataBuilder = nullptr;
+	AIKIT_HANDLE* handle = nullptr;
+	AiAudio* aiAudio_raw = nullptr;
+
+	for (int i = 0; i < fsa_count; ++i)
+	{
+		index[i] = i;
+	}
+	ret = AIKIT_SpecifyDataSet(kABILITY_COMMAND_WORD_RECOGNITION, "FSA", index, fsa_count);
+	if (ret != 0)
+	{
+		LOG_INFO("AIKIT_SpecifyDataSet failed:%d\n", ret);
+		goto exit;
+	}
+
+	ret = AIKIT_Start(kABILITY_COMMAND_WORD_RECOGNITION, AIKIT_Builder::build(paramBuilder), nullptr, &handle);
+	if (ret != 0)
+	{
+		LOG_INFO("AIKIT_Start failed:%d\n", ret);
+		goto exit;
+	}
+
+	//file = fopen(".\\testAudio\\cn_test.pcm", "rb");
+	file = fopen(audio_path, "rb");
+	if (file == nullptr)
+	{
+		LOG_INFO("fopen failed\n");
+		goto exit;
+	}
+
+	//注意，如果写入音频是wav，请去掉wav的头 44字节
+	fseek(file, 0, SEEK_END);
+	fileSize = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	//wav文件
+	//fseek(file, 44, SEEK_SET);
+
+	dataBuilder = AIKIT_DataBuilder::create();
+
+	while (fileSize > *readLen) {
+		curLen = (long)fread(data, 1, sizeof(data), file);
+		*readLen += curLen;
+		dataBuilder->clear();
+		if (*readLen == 320) {
+			status = AIKIT_DataBegin;
+		}
+		else
+			status = AIKIT_DataContinue;
+
+		aiAudio_raw = AiAudio::get("audio")->data(data, curLen)->status(status)->valid();
+		dataBuilder->payload(aiAudio_raw);
+
+		ret = ESRGetRlt(handle, dataBuilder);
+		if (ret != 0)
+			goto exit;
+
+		Sleep(10);
+	}
+
+	*readLen = -1;
+	dataBuilder->clear();
+	status = AIKIT_DataEnd;
+	aiAudio_raw = AiAudio::get("audio")->data(data, 0)->status(status)->valid();
+	dataBuilder->payload(aiAudio_raw);
+
+	ret = ESRGetRlt(handle, dataBuilder);
+	if (ret != 0)
+		goto exit;
+
+	ret = AIKIT_End(handle);
+	if (ret != 0)
+	{
+		LOG_INFO("AIKIT_End failed : %d\n", ret);
+	}
+
+exit:
+	if (handle != nullptr)
+		AIKIT_End(handle);
+
+	if (dataBuilder != nullptr) {
+		delete dataBuilder;
+		dataBuilder = nullptr;
+	}
+	if (file != nullptr) {
+		fclose(file);
+		file = nullptr;
+	}
+	if (index != NULL)
+	{
+		free(index);
+		index = NULL;
+	}
+
+	return ret;
+}
 
 std::string ToAbilityString(int ability) {
 	std::vector<int> all_abilitis;

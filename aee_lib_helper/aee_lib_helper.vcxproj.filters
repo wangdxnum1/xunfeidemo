@@ -27,6 +27,12 @@
     <ClInclude Include="global_define.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="speech_recognizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="winrec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -36,6 +42,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="aee_lib_helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="speech_recognizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="winrec.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

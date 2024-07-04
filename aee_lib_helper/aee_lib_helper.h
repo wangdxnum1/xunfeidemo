@@ -116,3 +116,16 @@ extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_Command_Word_EngineInit();
 /// <param name="ability"></param>
 /// <returns>错误码 0=成功，其他表示失败</returns>
 extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_Awaken_Command_Word_EngineUnInit();
+
+/// <summary>
+/// 设置命令词的配置文件路径
+/// </summary>
+/// <returns>错误码 0=成功，其他表示失败</returns>
+extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_SetCommandWordData(const char* filepath);
+
+/// <summary>
+/// 从语音文件识别命令词
+/// </summary>
+/// <param name="file_path"></param>
+/// <returns>错误码 0=成功，其他表示失败</returns>
+extern "C" AEE_LIB_HELPER_API int AEE_lib_CommandFromFile(const char* file_path);

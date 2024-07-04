@@ -2,12 +2,27 @@
 //
 
 #include <iostream>
+#include <windows.h>
 
 #include "../../../aee_lib_helper/aee_lib_helper.h"
 
 // C++测试程序，调用aee_lib_helper.dll来跑通讯飞的SDK
 
-static const char* ABILITY = "e867a88f2";
+std::wstring GetInstallExePath() {
+	wchar_t file_name[MAX_PATH] = { 0 };
+	DWORD size = GetModuleFileName(NULL, file_name, MAX_PATH);
+	if (size == 0) {
+		return L"";
+	}
+
+	std::wstring host_folder(file_name);
+	auto pos = host_folder.find_last_of(L"\\");
+	if (pos != std::wstring::npos) {
+		host_folder = host_folder.substr(0, pos + 1);
+	}
+
+	return host_folder;
+}
 
 
 // 输出回调
@@ -27,41 +42,51 @@ void OnError(int err, const char* desc) {
 
 int main()
 {
+	SetCurrentDirectoryW(GetInstallExePath().c_str());
+
 	std::string app_id = "fcde2f9b";
 	std::string api_secret = "YTY1ZDM1OWU1OWM1YjYxNmRiNmZjYmMy";
 	std::string api_key = "3813c0bf114b0221b61db7b012f40dba";
 
 	// 初始化SDK
-	AEE_lib_Init(app_id.c_str(), api_secret.c_str(), api_key.c_str(), OnOutput, OnEvent, OnError);
+	AEE_lib_Init(AEE_LIB_COMMAND_WORD_RECOGNITION, app_id.c_str(), api_secret.c_str(), api_key.c_str(), OnOutput, OnEvent, OnError);
 
 	int code = 0;
+
 	do
 	{
-		//// 初始化语音唤醒引擎
-		//code = AEE_lib_AIKIT_EngineInit(ABILITY, ".\\resource\\ivw70\\kerword.txt");
-		//if (code != 0) {
-		//	printf("AEE_lib_AIKIT_EngineInit fail \r\n");
-		//	break;
-		//}
+		// 初始命令词识别引擎
+		code = AEE_lib_AIKIT_Command_Word_EngineInit();
+		if (code != 0) {
+			printf("AEE_lib_AIKIT_Command_Word_EngineInit fail \r\n");
+			break;
+		}
 
-		//printf("===========================\n");
-		//printf("where is audio data from? \n0: audio file\n1: microphone\n");
-		//printf("===========================\n");
+		// 设置命令词识别
+		code = AEE_lib_AIKIT_SetCommandWordData(".\\resource\\cnenesr\\fsa\\cn_fsa.txt");
+		if (code != 0) {
+			printf("AEE_lib_AIKIT_SetCommandWordData fail \r\n");
+			break;
+		}
 
-		//int aud_src = 0;
-		//scanf("%d", &aud_src);
-		//if (aud_src)
-		//{
-		//	AEE_lib_WakeFromMicrophone();
-		//}
-		//else
-		//{
-		//	AEE_lib_WakeFromFile(".\\testAudio\\xbxb.pcm");
-		//}
+		printf("===========================\n");
+		printf("where is audio data from? \n0: audio file\n1: microphone\n");
+		printf("===========================\n");
+
+		int aud_src = 0;
+		scanf("%d", &aud_src);
+		if (aud_src)
+		{
+			//AEE_lib_WakeFromMicrophone();
+		}
+		else
+		{
+			AEE_lib_CommandFromFile(".\\testAudio\\cn_test.pcm");
+		}
 
 
-		//// 关闭引擎
-		//code = AEE_lib_AIKIT_EngineUnInit(ABILITY);
+		// 关闭引擎
+		code = AEE_lib_AIKIT_Awaken_Command_Word_EngineUnInit();
 	} while (false);
 
 
