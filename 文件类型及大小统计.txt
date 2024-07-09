@@ -1,0 +1,50 @@
+--------------------------------------------------------------
+   Type   |  Size Count(Top 300)  |   File Count   |   File Extension 
+--------------------------------------------------------------
+  Binary        788.56 MB            13 files       *.ipch
+  ?              92.61 MB             6 files       *.bin_1.0.0.0
+  Binary         78.93 MB             4 files       *.db
+  Binary         47.51 MB            20 files       *.dll
+  Binary         13.31 MB            13 files       *.pdb
+  Binary         12.88 MB             1 files       *.pch
+  Binary          7.24 MB             4 files       *.ilk
+  Binary          1.91 MB             4 files       *.idb
+  Binary          1.67 MB            10 files       *.obj
+  Text            1.66 MB            11 files       *.log
+  ?               1.46 MB             1 files       IVW_GRAM_1
+  Binary          1.08 MB            10 files       *.lib
+  ?             711.35 KB             1 files       IVW_MLP_1
+  Binary        476.50 KB             9 files       *.exe
+  ?             450.00 KB             3 files       *.mmap2
+  ?             388.67 KB            32 files       *.tlog
+  ?             365.75 KB            10 files       *.vsidx
+  ?             254.50 KB             2 files       *.suo
+  Text          220.46 KB            44 files       *.h
+  ?             185.51 KB             3 files       *.pcm
+  Text           68.18 KB            12 files       *.cpp
+  ?              64.00 KB             2 files       *.db-shm
+  ?              53.60 KB             1 files       IVW_FILLER_1
+  Text           48.40 KB             6 files       *.vcxproj
+  Text           28.77 KB             2 files       *.json
+  Text           23.35 KB             2 files       *.c
+  ?              20.32 KB             3 files       fcde2f9bcf55de4ddc7a1220817d7c0cdbb1fd90
+  Binary         11.87 KB             6 files       *.cache
+  Text           10.32 KB             7 files       *.cs
+  Text           10.01 KB             6 files       *.filters
+  Binary         10.01 KB             2 files       *.sln
+  ?               7.09 KB             1 files       *.gitignore
+  Text            5.87 KB            10 files       *.txt
+  Binary          5.15 KB             2 files       *.exp
+  Text            4.66 KB             2 files       *.csproj
+  ?               2.90 KB             6 files       *.user
+  ?               2.52 KB             1 files       *.gitattributes
+  ?               1.37 KB             4 files       *.recipe
+  ?               1.06 KB             1 files       LICENSE
+  ?               0.87 KB             4 files       *.lastbuildstate
+  Text            0.74 KB             4 files       *.config
+  ?               0.67 KB             1 files       IVW_KEYWORD_1
+  ?               0.17 KB             1 files       YTY1ZDM1OWU1OWM1YjYxNmRiNmZjYmMycf55de4ddc7a1220817d7c0cdbb1fd90
+  Text            0.03 KB             1 files       *.md
+  ?               0.03 KB             1 files       *.opendb
+  ?               0.00 KB             2 files       *.db-wal
+

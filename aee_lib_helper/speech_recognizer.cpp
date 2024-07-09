@@ -231,7 +231,7 @@ int sr_init(struct speech_rec * sr, enum sr_audsrc aud_src, int devid)
 	if (aud_src == SR_MIC) {
 		errcode = create_recorder(&sr->recorder, esr_cb, (void*)sr);
 		if (sr->recorder == NULL || errcode != 0) {
-			sr_dbg("create recorder failed: %d\n", errcode);
+			LOG_INFO("create recorder failed: %d\n", errcode);
 			errcode = -E_SR_RECORDFAIL;
 			goto fail;
 		}
@@ -242,7 +242,7 @@ int sr_init(struct speech_rec * sr, enum sr_audsrc aud_src, int devid)
 	
 		errcode = open_recorder(sr->recorder, devid, &wavfmt);
 		if (errcode != 0) {
-			sr_dbg("recorder open failed: %d\n", errcode);
+			LOG_INFO("recorder open failed: %d\n", errcode);
 			errcode = -E_SR_RECORDFAIL;
 			goto fail;
 		}
@@ -266,7 +266,7 @@ int sr_start_listening(struct speech_rec *sr)
 	int index[] = { 0 };
 
 	if (sr->state >= SR_STATE_STARTED) {
-		sr_dbg("already STARTED.\n");
+		LOG_INFO("already STARTED.\n");
 		return -E_SR_ALREADY;
 	}
 	index[0] = 0;
@@ -276,7 +276,7 @@ int sr_start_listening(struct speech_rec *sr)
 	errcode = AIKIT_Start(sr->ABILITY, AIKIT_Builder::build(sr->paramBuilder), nullptr, &sr->handle);
 	if (0 != errcode)
 	{
-		sr_dbg("\nAIKIT_Start failed! error code:%d\n", errcode);
+		LOG_INFO("\nAIKIT_Start failed! error code:%d\n", errcode);
 		return errcode;
 	}
 	sr->audio_status = AIKIT_DataBegin;
@@ -284,7 +284,7 @@ int sr_start_listening(struct speech_rec *sr)
 	if (sr->aud_src == SR_MIC) {
 		ret = start_record(sr->recorder);
 		if (ret != 0) {
-			sr_dbg("start record failed: %d\n", ret);
+			LOG_INFO("start record failed: %d\n", ret);
 			ret = AIKIT_End(sr->handle);
 			sr->handle = NULL;
 			return -E_SR_RECORDFAIL;
@@ -319,7 +319,7 @@ int sr_stop_listening(struct speech_rec *sr)
 	AiAudio* aiAudio_raw = NULL;
 
 	if (sr->state < SR_STATE_STARTED) {
-		sr_dbg("Not started or already stopped.\n");
+		LOG_INFO("Not started or already stopped.\n");
 		return 0;
 	}
 
@@ -329,7 +329,7 @@ int sr_stop_listening(struct speech_rec *sr)
 		safe_close_file();
 #endif
 		if (ret != 0) {
-			sr_dbg("Stop failed! \n");
+			LOG_INFO("Stop failed! \n");
 			return -E_SR_RECORDFAIL;
 		}
 		wait_for_rec_stop(sr->recorder, (unsigned int)-1);
@@ -341,7 +341,7 @@ int sr_stop_listening(struct speech_rec *sr)
 	LOG_INFO("sr_stop_listening\n");
 	ret = ESRGetRlt(sr->handle, sr->dataBuilder);
 	if (ret != 0 && ret != ESR_HAS_RESULT) {
-		sr_dbg("write LAST_SAMPLE failed: %d\n", ret);
+		LOG_INFO("write LAST_SAMPLE failed: %d\n", ret);
 		AIKIT_End(sr->handle);
 		return ret;
 	}

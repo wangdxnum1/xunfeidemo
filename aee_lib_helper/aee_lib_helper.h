@@ -129,3 +129,20 @@ extern "C" AEE_LIB_HELPER_API int AEE_lib_AIKIT_SetCommandWordData(const char* f
 /// <param name="file_path"></param>
 /// <returns>错误码 0=成功，其他表示失败</returns>
 extern "C" AEE_LIB_HELPER_API int AEE_lib_CommandFromFile(const char* file_path);
+
+/// <summary>
+/// 从麦克风识别命令词,调用这个接口口，默认开始监听命令词，会阻塞调用线程
+/// 注意:这个接口只能在当前进程里调用一次，不能多线程同时调用
+/// </summary>
+/// <param name="milli_seconds">超时时间，单位为毫秒，最大为1分钟</param>
+/// <returns>错误码 0=成功，其他表示失败</returns>
+extern "C" AEE_LIB_HELPER_API int AEE_lib_CommandFromMicrophone(const int milli_seconds);
+
+/// <summary>
+/// 停止从麦克风语音识别命令词
+/// 注意:超时之后，不建议再调用此接口
+/// 调用此接口之后，会提前结束当前回话，即从麦克风命令词识别
+/// </summary>
+/// <param name="file_path"></param>
+/// <returns>错误码 0=成功，其他表示失败</returns>
+extern "C" AEE_LIB_HELPER_API int AEE_lib_StopCommandWordRecognition();

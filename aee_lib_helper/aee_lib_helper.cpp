@@ -30,6 +30,15 @@
 using namespace std;
 using namespace AIKIT;
 
+enum {
+	//EVT_START = 0,
+	EVT_STOP,
+	EVT_QUIT,
+	EVT_TOTAL
+};
+
+static HANDLE gEvents[EVT_TOTAL] = { NULL,NULL};
+
 //
 // 能力id
 //
@@ -39,6 +48,9 @@ static const char* kABILITY_AWAKEN_BY_VOICE = "e867a88f2";
 
 // 离线命令词识别
 static const char* kABILITY_COMMAND_WORD_RECOGNITION = "e75f07b62";
+
+// 命令词识别最大超时时间
+static const DWORD kCOMMAND_WORD_RECOGNITION_TiMEOUT = 60 * 1000;
 
 //
 // call back
@@ -80,7 +92,8 @@ void OnError(AIKIT_HANDLE* handle, int32_t err, const char* desc) {
 //
 // sdk method
 //
-int esr_file(AIKIT_ParamBuilder* paramBuilder, const char* audio_path, int fsa_count, long* readLen);
+static int esr_mic(DWORD dwMilliseconds);
+static int esr_file(AIKIT_ParamBuilder* paramBuilder, const char* audio_path, int fsa_count, long* readLen);
 
 //
 // internel or static private method
@@ -472,9 +485,85 @@ exit:
 	return ret;
 }
 
+AEE_LIB_HELPER_API int AEE_lib_CommandFromMicrophone(const int milli_seconds) {
+	DWORD timeout = (DWORD)milli_seconds;
+	if (timeout > kCOMMAND_WORD_RECOGNITION_TiMEOUT) {
+		timeout = kCOMMAND_WORD_RECOGNITION_TiMEOUT;
+	}
+
+	return 0;
+}
+
+AEE_LIB_HELPER_API int AEE_lib_StopCommandWordRecognition() {
+	SetEvent(gEvents[EVT_QUIT]);
+	return 0;
+}
+
 /********************************************************************************************************************************/
 /********************************************internel or static private method***************************************************/
 /********************************************************************************************************************************/
+static int esr_mic(DWORD dwMilliseconds)
+{
+	int errcode = 0;
+	int i = 0;
+
+	struct speech_rec esr;
+	DWORD waitres = 0;
+	bool isquit = false;
+
+	errcode = sr_init(&esr, SR_MIC, DEFAULT_INPUT_DEVID);
+	if (errcode) {
+		LOG_INFO("speech recognizer init failed\n");
+		return errcode;
+	}
+
+	for (i = 0; i < EVT_TOTAL; ++i) {
+		gEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+	}
+
+	// 开始录音
+	if (errcode = sr_start_listening(&esr)) {
+		LOG_INFO("start listen failed %d\n", errcode);
+		goto exit;
+	}
+
+	while (true) {
+		waitres = WaitForMultipleObjects(EVT_TOTAL, gEvents, FALSE, dwMilliseconds);
+		switch (waitres) {
+		case WAIT_FAILED:
+			LOG_INFO("WaitForMultipleObjects failed \r\n");
+		case WAIT_TIMEOUT:
+			LOG_INFO("WAIT_TIMEOUT\n");
+			sr_stop_listening(&esr);
+			isquit = true;
+			break;
+		case WAIT_OBJECT_0 + EVT_STOP:
+			if (errcode = sr_stop_listening(&esr)) {
+				LOG_INFO("stop listening failed %d\n", errcode);
+				isquit = true;
+			}
+			break;
+		case WAIT_OBJECT_0 + EVT_QUIT:
+			sr_stop_listening(&esr);
+			isquit = true;
+			break;
+		default:
+			break;
+		}
+		if (isquit)
+			break;
+	}
+
+exit:
+	for (i = 0; i < EVT_TOTAL; ++i) {
+		if (gEvents[i]) {
+			CloseHandle(gEvents[i]);
+			gEvents[i] = NULL;
+		}
+	}
+
+	sr_uninit(&esr);
+}
 int esr_file(AIKIT_ParamBuilder* paramBuilder, const char* audio_path, int fsa_count, long* readLen)
 {
 	int ret = 0;
