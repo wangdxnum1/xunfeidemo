@@ -90,3 +90,23 @@ readable: {"sc":"10801","mode":"fsa","ismandarin":"true","bg":"87","ed":"186","w
 readable: {"sc":"0","bg":"-1","ed":"-1","ws":[{"sc":"0","w":"。"}]}
 pgs: 打开
 pgs: 打开空调
+pgs: 打开
+pgs: 打开空调
+htk: <s>
+打开空调
+</s>
+
+plain: 打开空调
+vad: {"sc":"0","ws":[{"bg":"87","ed":"186","status":"SpeechAutoFinish"}]}
+readable: {"sc":"10801","mode":"fsa","ismandarin":"true","bg":"87","ed":"186","ws":[{"sc":"0","w":"打开空调","slot":"esr","pinyin":"","boundary":""}]}
+readable: {"sc":"0","bg":"-1","ed":"-1","ws":[{"sc":"0","w":"。"}]}
+pgs: 打开
+pgs: 打开空调
+htk: <s>
+打开空调
+</s>
+
+plain: 打开空调
+vad: {"sc":"0","ws":[{"bg":"87","ed":"186","status":"SpeechAutoFinish"}]}
+readable: {"sc":"10801","mode":"fsa","ismandarin":"true","bg":"87","ed":"186","ws":[{"sc":"0","w":"打开空调","slot":"esr","pinyin":"","boundary":""}]}
+readable: {"sc":"0","bg":"-1","ed":"-1","ws":[{"sc":"0","w":"。"}]}

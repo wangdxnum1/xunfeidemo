@@ -486,12 +486,16 @@ exit:
 }
 
 AEE_LIB_HELPER_API int AEE_lib_CommandFromMicrophone(const int milli_seconds) {
-	DWORD timeout = (DWORD)milli_seconds;
-	if (timeout > kCOMMAND_WORD_RECOGNITION_TiMEOUT) {
-		timeout = kCOMMAND_WORD_RECOGNITION_TiMEOUT;
+	DWORD timeout = 0;
+
+	if (milli_seconds == AEE_LIB_INFINITE) {
+		timeout = INFINITE;
+	}
+	else {
+		timeout = (DWORD)milli_seconds;
 	}
 
-	return 0;
+	return esr_mic(timeout);
 }
 
 AEE_LIB_HELPER_API int AEE_lib_StopCommandWordRecognition() {
@@ -563,6 +567,8 @@ exit:
 	}
 
 	sr_uninit(&esr);
+
+	return 0;
 }
 int esr_file(AIKIT_ParamBuilder* paramBuilder, const char* audio_path, int fsa_count, long* readLen)
 {
@@ -609,7 +615,7 @@ int esr_file(AIKIT_ParamBuilder* paramBuilder, const char* audio_path, int fsa_c
 	fileSize = ftell(file);
 	fseek(file, 0, SEEK_SET);
 	//wavÎÄ¼þ
-	//fseek(file, 44, SEEK_SET);
+ 	//fseek(file, 44, SEEK_SET);
 
 	dataBuilder = AIKIT_DataBuilder::create();
 

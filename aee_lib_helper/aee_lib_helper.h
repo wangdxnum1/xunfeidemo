@@ -17,6 +17,9 @@
 // 所有能力， 语音唤醒 + 命令词识别
 #define AEE_LIB_ALL_ABILITY						(AEE_LIB_AWAKEN_BY_VOICE | AEE_LIB_COMMAND_WORD_RECOGNITION)
 
+// 无限等待
+#define AEE_LIB_INFINITE						(-1)
+
 //
 // SDK 3个回调函数定义 Callback Function Definition
 //

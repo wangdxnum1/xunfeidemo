@@ -77,7 +77,8 @@ int main()
 		scanf("%d", &aud_src);
 		if (aud_src)
 		{
-			//AEE_lib_WakeFromMicrophone();
+			// 超时时间，这个宏表示不会超时，只要不出异常
+			AEE_lib_CommandFromMicrophone(AEE_LIB_INFINITE);
 		}
 		else
 		{
